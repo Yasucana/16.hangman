@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hangman Game</title>
+    <style>
+        #word-display {
+            font-size: 24px;
+            letter-spacing: 10px;
+        }
+        #lives, #guessed, #message {
+            margin-top: 10px;
+        }
+        span {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="word-display"></div>
+    <div id="lives">Lives: 6</div>
+    <div id="guessed">Guessed: </div>
+    <div id="message"></div>
+    <button id="new-game" style="display:none;">New Game</button>
+    <script>
+        const words = ['apricot', 'avocado', 'blackberry', 'blueberry', 'cantaloupe', 'clementine', 'coconut', 'cranberry', 'currant', 'dragonfruit', 'durian', 'gooseberry', 'grapefruit', 'guava', 'jackfruit', 'kumquat', 'lime', 'lychee', 'mango', 'mangosteen', 'melon', 'mulberry', 'nectarine', 'orange', 'papaya', 'passionfruit', 'peach', 'pear', 'persimmon', 'pineapple', 'plum', 'pomegranate', 'quince', 'raspberry', 'rambutan', 'starfruit', 'tangerine', 'watermelon', 'yuzu', 'acai', 'bilberry', 'boysenberry', 'cherimoya', 'feijoa', 'loquat', 'longan', 'soursop', 'tamarind', 'ugli', 'salak'];
+
+        let word;
+        let display;
+        let lives;
+        let guessed;
+        let gameOver = false;
+
+        function init() {
+            word = words[Math.floor(Math.random() * words.length)];
+            display = Array(word.length).fill('_');
+            lives = 6;
+            guessed = [];
+            gameOver = false;
+            updateDisplay();
+            updateLives();
+            updateGuessed();
+            document.getElementById('message').innerText = '';
+            document.getElementById('new-game').style.display = 'none';
+        }
+
+        function updateDisplay() {
+            const wordDisplay = document.getElementById('word-display');
+            wordDisplay.innerHTML = '';
+            display.forEach(char => {
+                const span = document.createElement('span');
+                span.innerText = char;
+                wordDisplay.appendChild(span);
+            });
+        }
+
+        function updateLives() {
+            document.getElementById('lives').innerText = `Lives: ${lives}`;
+        }
+
+        function updateGuessed() {
+            document.getElementById('guessed').innerText = `Guessed: ${guessed.sort().join(', ')}`;
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (gameOver) return;
+            const key = event.key.toLowerCase();
+            if (/[a-z]/.test(key) && key.length === 1 && !guessed.includes(key)) {
+                guessed.push(key);
+                if (word.includes(key)) {
+                    word.split('').forEach((letter, index) => {
+                        if (letter === key) {
+                            display[index] = key;
+                        }
+                    });
+                } else {
+                    lives--;
+                }
+                updateDisplay();
+                updateLives();
+                updateGuessed();
+                checkGameOver();
+            }
+        });
+
+        function checkGameOver() {
+            if (!display.includes('_')) {
+                document.getElementById('message').innerText = `You won! The word was ${word}`;
+                gameOver = true;
+                document.getElementById('new-game').style.display = 'block';
+            } else if (lives <= 0) {
+                document.getElementById('message').innerText = `You lost! The word was ${word}`;
+                gameOver = true;
+                document.getElementById('new-game').style.display = 'block';
+            }
+        }
+
+        document.getElementById('new-game').addEventListener('click', init);
+
+        init();
+    </script>
+</body>
+</html>
